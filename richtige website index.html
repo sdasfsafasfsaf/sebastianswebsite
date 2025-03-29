@@ -1,0 +1,493 @@
+
+    
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌴 Sebastian's Summer Reloaded</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --main: #ff7e5f;
+      --accent: #feb47b;
+      --bg: #fffef6;
+      --text: #e63946;
+      --radius: 16px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      color: var(--text);
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 10px;
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--main), var(--accent));
+      color: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-box {
+      max-width: 400px;
+      margin: 120px auto;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      font-size: 16px;
+      border-radius: var(--radius);
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      background: var(--main);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--accent);
+    }
+
+    .error {
+      color: red;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .section {
+      display: none;
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 25px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .visible {
+      display: block !important;
+    }
+
+    .nav, .logout-box {
+      display: none;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 10px auto;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: var(--radius);
+    }
+
+    .nav button, .logout-box button {
+      background: white;
+      color: var(--main);
+      border: 2px solid var(--main);
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav button:hover, .logout-box button:hover {
+      background: var(--main);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 🔐 LOGIN-BEREICH -->
+<div id="login" class="login-box">
+  <h2>🔐 Willkommen bei Summer Reloaded</h2>
+  <input type="password" id="password" placeholder="Passwort eingeben..." />
+  <button onclick="checkLogin()">Einloggen</button>
+  <p id="error" class="error">❌ Falsches Passwort!</p>
+</div>
+
+<!-- 🌴 HAUPT-HEADER & NAVI (folgt nach Login) -->
+<header id="mainHeader" style="display:none;">🌞 Sebastian's Summer Website Reloaded</header>
+
+<div class="logout-box" id="logoutBox" style="display:none;">
+  <button onclick="logout()">🚪 Abmelden</button>
+  <button onclick="toggleMode()">🌓 Dark Mode</button>
+</div>
+
+<div class="nav" id="mainNav" style="display:none;">
+  <button onclick="showSection('weather')">🌤 Wetter</button>
+  <button onclick="showSection('todo')">✅ To-Do</button>
+  <button onclick="showSection('car')">🚗 Auto-Tagebuch</button>
+  <button onclick="showSection('plan')">📘 Stundenplan</button>
+  <button onclick="showSection('homework')">📚 Hausübungen</button>
+  <button onclick="showSection('exercise')">💪 Sport</button>
+  <button onclick="showSection('calendar')">📅 Kalender</button>
+  <button onclick="showSection('dreams')">🚙 Traumautos</button>
+</div>
+<!-- ⏰ Uhrzeit -->
+<div id="clock" style="
+  text-align:center;
+  font-size: 36px;
+  margin: 30px 0 10px;
+  font-weight: bold;
+  color: #e63946;
+  text-shadow: 1px 1px 4px white;
+"></div>
+
+<!-- 🌤 Wetteranzeige -->
+<div id="weather" class="section">
+  <h2>🌞 Wetter in Innsbruck</h2>
+  <div id="weatherInfo">Lade Wetterdaten...</div>
+</div>
+
+<script>
+// 🌐 API Key – dein OpenWeather Key
+const API_KEY = "a0f4d1fe6773de20008565210749cb87";
+
+// ⏰ Uhrzeit-Update
+function updateClock() {
+  const now = new Date();
+  const time = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  document.getElementById("clock").textContent = "🕒 " + time;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// 🌤 Wetter laden (Innsbruck)
+async function loadWeather() {
+  try {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=47.2692&lon=11.4041&appid=${API_KEY}&units=metric&lang=de`);
+    const d = await res.json();
+
+    document.getElementById("weatherInfo").innerHTML = `
+      <p><strong>🌅 Sonnenaufgang:</strong> ${new Date(d.sys.sunrise * 1000).toLocaleTimeString()}</p>
+      <p><strong>🌇 Sonnenuntergang:</strong> ${new Date(d.sys.sunset * 1000).toLocaleTimeString()}</p>
+      <p><strong>🌡️ Temperatur:</strong> ${d.main.temp}°C</p>
+      <p><strong>💧 Feuchtigkeit:</strong> ${d.main.humidity}%</p>
+      <p><strong>🌤️ Zustand:</strong> ${d.weather[0].description}</p>
+    `;
+  } catch (error) {
+    document.getElementById("weatherInfo").innerHTML = "⚠️ Fehler beim Laden der Wetterdaten!";
+  }
+}
+</script>
+<!-- ✅ To-Do-Liste -->
+<div id="todo" class="section">
+  <h2>✅ To-Do Liste</h2>
+  <input type="text" id="todoTask" placeholder="Aufgabe eingeben..." />
+  <input type="date" id="todoDate" />
+  <button onclick="addTodo()">Hinzufügen</button>
+  <ul id="todoList" style="margin-top: 20px;"></ul>
+</div>
+
+<!-- 🚗 Auto-Tagebuch -->
+<div id="car" class="section">
+  <h2>🚗 Auto-Tagebuch</h2>
+  <input type="date" id="carDate" />
+  <input type="text" id="carName" placeholder="Auto gesichtet (z. B. M4, Audi...)" />
+  <button onclick="addCar()">Eintragen</button>
+  <div id="carList" style="margin-top: 20px;"></div>
+</div>
+
+<script>
+// ✅ To-Do Speicher
+let todos = JSON.parse(localStorage.getItem("todos") || "[]");
+
+function addTodo() {
+  const task = document.getElementById("todoTask").value;
+  const date = document.getElementById("todoDate").value;
+  if (!task || !date) return alert("Bitte Aufgabe und Datum angeben!");
+  todos.push({ task, date });
+  localStorage.setItem("todos", JSON.stringify(todos));
+  showTodos();
+  document.getElementById("todoTask").value = "";
+  document.getElementById("todoDate").value = "";
+}
+
+function showTodos() {
+  const list = document.getElementById("todoList");
+  list.innerHTML = "";
+  todos.forEach((t, i) => {
+    list.innerHTML += `<li>${t.date} – ${t.task} <button onclick="deleteTodo(${i})">🗑️</button></li>`;
+  });
+}
+
+function deleteTodo(i) {
+  todos.splice(i, 1);
+  localStorage.setItem("todos", JSON.stringify(todos));
+  showTodos();
+}
+showTodos();
+
+// 🚗 Auto-Tagebuch Speicher
+let cars = JSON.parse(localStorage.getItem("cars") || "[]");
+
+function addCar() {
+  const date = document.getElementById("carDate").value;
+  const name = document.getElementById("carName").value;
+  if (!date || !name) return alert("Datum und Autoname eingeben!");
+  cars.push({ date, name });
+  localStorage.setItem("cars", JSON.stringify(cars));
+  showCars();
+  document.getElementById("carDate").value = "";
+  document.getElementById("carName").value = "";
+}
+
+function showCars() {
+  const list = document.getElementById("carList");
+  list.innerHTML = "";
+  cars.forEach((c, i) => {
+    list.innerHTML += `<p>${c.date}: ${c.name} <button onclick="deleteCar(${i})">🗑️</button></p>`;
+  });
+}
+
+function deleteCar(i) {
+  cars.splice(i, 1);
+  localStorage.setItem("cars", JSON.stringify(cars));
+  showCars();
+}
+showCars();
+</script>
+<!-- 📘 Stundenplan -->
+<div id="plan" class="section">
+  <h2>📘 Mein Stundenplan</h2>
+  <table style="width:100%; border-collapse: collapse; text-align: center; background: rgba(255,255,255,0.95);">
+    <thead style="background: #ffeadb;">
+      <tr>
+        <th>Stunde</th>
+        <th>Montag</th><th>Dienstag</th><th>Mittwoch</th><th>Donnerstag</th><th>Freitag</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Geschichte</td><td>KG</td><td>Physik</td><td>Mathe</td><td>Englisch</td></tr>
+      <tr><td>2</td><td>Chemie</td><td>Deutsch</td><td>Englisch</td><td>GWB</td><td>Mathe</td></tr>
+      <tr><td>3</td><td>Deutsch</td><td>SOL</td><td>Mathe</td><td>Deutsch</td><td>Chemie</td></tr>
+      <tr><td>4</td><td>Englisch</td><td>Mathe</td><td>GZ</td><td>Kochen</td><td>Deutsch</td></tr>
+      <tr><td>5</td><td>BU</td><td>Sport</td><td>BU</td><td>-</td><td>Musik</td></tr>
+      <tr><td>6</td><td>-</td><td>Sport</td><td>Geschichte</td><td>-</td><td>Sport</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 📚 Hausübungen -->
+<div id="homework" class="section">
+  <h2>📚 Hausübungen</h2>
+  <input type="date" id="hwDate" />
+  <input type="text" id="hwSubject" placeholder="Fach" />
+  <input type="text" id="hwTask" placeholder="Aufgabe" />
+  <input type="date" id="hwDue" />
+  <button onclick="addHomework()">Hinzufügen</button>
+
+  <table style="width:100%; margin-top:15px; border-collapse: collapse;">
+    <thead style="background:#ffe2cf;">
+      <tr><th>Bekommen</th><th>Fach</th><th>Aufgabe</th><th>Abgabe</th><th>Aktion</th></tr>
+    </thead>
+    <tbody id="hwTable"></tbody>
+  </table>
+</div>
+
+<script>
+// 📚 Hausübungen Speicher
+let homeworks = JSON.parse(localStorage.getItem("homeworks") || "[]");
+
+function addHomework() {
+  const d = document.getElementById("hwDate").value;
+  const s = document.getElementById("hwSubject").value;
+  const t = document.getElementById("hwTask").value;
+  const due = document.getElementById("hwDue").value;
+  if (!d || !s || !t || !due) return alert("Bitte alle Felder ausfüllen!");
+  homeworks.push({ d, s, t, due });
+  localStorage.setItem("homeworks", JSON.stringify(homeworks));
+  showHomeworks();
+  document.getElementById("hwDate").value = "";
+  document.getElementById("hwSubject").value = "";
+  document.getElementById("hwTask").value = "";
+  document.getElementById("hwDue").value = "";
+}
+
+function showHomeworks() {
+  const tb = document.getElementById("hwTable");
+  tb.innerHTML = "";
+  homeworks.forEach((h, i) => {
+    tb.innerHTML += `<tr>
+      <td>${h.d}</td><td>${h.s}</td><td>${h.t}</td><td>${h.due}</td>
+      <td><button onclick="deleteHomework(${i})">🗑️</button></td>
+    </tr>`;
+  });
+}
+
+function deleteHomework(i) {
+  homeworks.splice(i, 1);
+  localStorage.setItem("homeworks", JSON.stringify(homeworks));
+  showHomeworks();
+}
+showHomeworks();
+</script>
+<!-- 💪 Tagesübung -->
+<div id="exercise" class="section">
+  <h2>💪 Tagesübung</h2>
+  <div id="exerciseContent" style="font-size:18px; margin-top:10px;"></div>
+</div>
+
+<!-- 📅 Kalender -->
+<div id="calendar" class="section">
+  <h2>📅 Monatskalender</h2>
+  <div id="calendarContainer" style="
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 12px;
+  "></div>
+</div>
+
+<script>
+// 💪 Tägliche Übung
+const exercises = {
+  0: "🛌 Sonntag: Dehnen & Entspannung",
+  1: "💪 Montag: 10 Liegestütze, 20 Sit-Ups",
+  2: "🏃 Dienstag: 15 Kniebeugen, 30 Sek Hampelmann",
+  3: "🧘 Mittwoch: 30 Sek Plank, 10 Ausfallschritte",
+  4: "🚴 Donnerstag: 20 Sek Wandsitzen, 15 Crunches",
+  5: "🤸 Freitag: 30 Sek Seilspringen, 15 Sit-Ups",
+  6: "🧗 Samstag: 10 Burpees, 40 Sek Plank"
+};
+
+function loadExercise() {
+  const day = new Date().getDay();
+  document.getElementById("exerciseContent").textContent = exercises[day];
+}
+loadExercise();
+
+// 📅 Kalender
+function renderCalendar() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const days = new Date(year, month + 1, 0).getDate();
+  const container = document.getElementById("calendarContainer");
+  container.innerHTML = "";
+
+  // Monatstitel
+  const title = document.createElement("h3");
+  title.style.width = "100%";
+  title.style.textAlign = "center";
+  title.textContent = `📅 ${now.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}`;
+  container.appendChild(title);
+
+  // Start-Offset
+  const firstDay = new Date(year, month, 1).getDay();
+  for (let i = 1; i < firstDay; i++) {
+    container.innerHTML += `<div style="width: 60px; height: 60px;"></div>`;
+  }
+
+  // Tage erzeugen
+  for (let d = 1; d <= days; d++) {
+    container.innerHTML += `
+      <div style="
+        width: 60px; height: 60px;
+        background: #fff6e9;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #e63946;
+      ">${d}</div>`;
+  }
+}
+renderCalendar();
+</script>
+<!-- 🚙 Traumauto-Galerie -->
+<div id="dreams" class="section">
+  <h2>🚙 Meine Traumautos</h2>
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+    <div>
+      <img src="https://source.unsplash.com/400x250/?bmw-m4" alt="BMW M4" style="border-radius: 12px;" />
+      <p style="text-align:center;">BMW M4</p>
+    </div>
+    <div>
+      <img src="https://source.unsplash.com/400x250/?bmw-m3" alt="BMW M3" style="border-radius: 12px;" />
+      <p style="text-align:center;">BMW M3</p>
+    </div>
+    <div>
+      <img src="https://source.unsplash.com/400x250/?bmw-m5" alt="BMW M5" style="border-radius: 12px;" />
+      <p style="text-align:center;">BMW M5</p>
+    </div>
+    <div>
+      <img src="https://source.unsplash.com/400x250/?maybach" alt="Maybach" style="border-radius: 12px;" />
+      <p style="text-align:center;">Maybach</p>
+    </div>
+  </div>
+</div>
+
+<!-- 🔒 Login, Logout, Dark Mode & Initialisierung -->
+<script>
+function checkLogin() {
+  const pw = document.getElementById("password").value;
+  if (pw === "555") {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("mainHeader").style.display = "block";
+    document.getElementById("mainNav").style.display = "flex";
+    document.getElementById("logoutBox").style.display = "flex";
+    updateClock(); setInterval(updateClock, 1000);
+    loadWeather(); showTodos(); showCars(); showHomeworks(); loadExercise(); renderCalendar();
+  } else {
+    document.getElementById("error").style.display = "block";
+  }
+}
+
+function logout() {
+  location.reload();
+}
+
+function toggleMode() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+}
+
+if (localStorage.getItem("theme") === "dark") {
+  document.body.classList.add("dark");
+}
+
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
+  document.getElementById(id).classList.add("visible");
+}
+</script>
+
+</body>
+</html>
